@@ -102,7 +102,7 @@ func (s *Service) Pay(accountID int64, amount types.Money, category types.Paymen
 	payment := &types.Payment{
 		ID:        paymentID,
 		Amount:    amount,
-		AccountId: accountID,
+		AccountID: accountID,
 		Category:  category,
 		Status:    types.PaymentStatusInProgress,
 	}
@@ -124,7 +124,7 @@ func (s *Service) Reject(paymentID string) error {
 		return ErrAccountNotFound
 	}
 
-	acc, err := s.FindAccountByID(targetPay.AccountId)
+	acc, err := s.FindAccountByID(targetPay.AccountID)
 	if err != nil {
 		return err
 	}

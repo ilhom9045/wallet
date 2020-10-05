@@ -18,6 +18,7 @@ const (
 //Payment ...
 type Payment struct {
 	ID       string
+	AccountId int64
 	Amount   Money
 	Category PaymentCategory
 	Status   PaymentStatus

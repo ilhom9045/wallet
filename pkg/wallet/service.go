@@ -203,7 +203,7 @@ func (s *Service) PayFromFavorite(favoriteID string) (*types.Payment, error) {
 var ErrFileNotClose = errors.New("File not close")
 
 func (s *Service) ExportToFile(path string) error {
-	file, err := os.Open(path)
+	file, err := os.Create(path)
 	if err != nil {
 		log.Print("err open file")
 		return ErrFileNotFound

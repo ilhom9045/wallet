@@ -15,13 +15,14 @@ const (
 	PaymentStatusFail       PaymentStatus = "FAIL"
 	PaymentStatusInProgress PaymentStatus = "INPROGRESS"
 )
+
 //Payment ...
 type Payment struct {
-	ID       string
+	ID        string
 	AccountID int64
-	Amount   Money
-	Category PaymentCategory
-	Status   PaymentStatus
+	Amount    Money
+	Category  PaymentCategory
+	Status    PaymentStatus
 }
 
 //Phone ...
@@ -34,9 +35,9 @@ type Account struct {
 	Balance Money
 }
 type Favorite struct {
-	ID string
+	ID        string
 	AccountID int64
-	Name string
-	Amount Money
-	Category PaymentCategory
+	Name      string
+	Amount    Money
+	Category  PaymentCategory
 }

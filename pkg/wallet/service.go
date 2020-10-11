@@ -2,6 +2,11 @@ package wallet
 
 import (
 	"errors"
+	"io"
+	"log"
+	"os"
+	"strconv"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/ilhom9045/wallet/pkg/types"
@@ -31,6 +36,8 @@ var ErrAmountMustBePositive = errors.New("Amount mast be <0")
 var ErrNotEnoughBalance = errors.New("")
 
 var ErrFavoriteNotFound = errors.New("Favorite not found")
+
+var ErrFileNotFound = errors.New("File not found")
 
 //RegisterAccount ...
 func (s *Service) RegisterAccount(phone types.Phone) (*types.Account, error) {
@@ -191,4 +198,94 @@ func (s *Service) PayFromFavorite(favoriteID string) (*types.Payment, error) {
 		return nil, err
 	}
 	return pay, nil
+}
+
+var ErrFileNotClose = errors.New("File not close")
+
+func (s *Service) ExportToFile(path string) error {
+	file, err := os.OpenFile(path, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
+	if err != nil {
+		log.Print("err open file")
+		return ErrFileNotFound
+	}
+	defer func() {
+		err = file.Close()
+		if err != nil {
+			log.Print(ErrFileNotClose)
+		}
+	}()
+	data := ""
+	for _, account := range s.accounts {
+		data += strconv.Itoa(int(account.ID)) + ";"
+		data += string(account.Phone) + ";"
+		data += strconv.Itoa(int(account.Balance)) + "|"
+	}
+
+	_, err = file.Write([]byte(data))
+	if err != nil {
+		log.Print(err)
+		return ErrFileNotFound
+	}
+	return nil
+}
+
+func (s *Service) ImportFromFile(path string) error {
+	file, err := os.Open(path)
+
+	if err != nil {
+		log.Print(err)
+		return ErrFileNotFound
+	}
+	//defer closeFile(file)
+	defer func() {
+		if cerr := file.Close(); cerr != nil {
+			log.Print(cerr)
+		}
+	}()
+	//log.Printf("%#v", file)
+
+	content := make([]byte, 0)
+	buf := make([]byte, 4)
+	for {
+		read, err := file.Read(buf)
+		if err == io.EOF {
+			break
+		}
+
+		if err != nil {
+			log.Print(err)
+			return ErrFileNotFound
+		}
+		content = append(content, buf[:read]...)
+	}
+
+	data := string(content)
+
+	accounts := strings.Split(data, "|")
+	accounts = accounts[:len(accounts)-1]
+	// if accounts == nil {
+	// 	return ErrAccountNotFound
+	// }
+	for _, account := range accounts {
+
+		value := strings.Split(account, ";")
+		id, err := strconv.Atoi(value[0])
+		if err != nil {
+			return err
+		}
+		phone := types.Phone(value[1])
+		balance, err := strconv.Atoi(value[2])
+		if err != nil {
+			return err
+		}
+		editAccount := &types.Account{
+			ID:      int64(id),
+			Phone:   phone,
+			Balance: types.Money(balance),
+		}
+
+		s.accounts = append(s.accounts, editAccount)
+		log.Print(account)
+	}
+	return nil
 }

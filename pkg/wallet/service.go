@@ -315,11 +315,19 @@ func (s *Service) ImportFromFile(path string) error {
 	return nil
 }
 
-
 func (s *Service) Export(dir string) error {
-	s.exportAccount(dir + AccountsFile)
-	s.exportFavorite(dir + FavoritesFile)
-	s.exportPayment(dir + PaymentsFile)
+	err := s.exportAccount(dir + AccountsFile)
+	if err != nil {
+		return err
+	}
+	err = s.exportFavorite(dir + FavoritesFile)
+	if err != nil {
+		return err
+	}
+	err = s.exportPayment(dir + PaymentsFile)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 func (s *Service) exportAccount(path string) error {
@@ -415,7 +423,7 @@ func (s *Service) exportPayment(path string) error {
 
 func (s *Service) Import(dir string) error {
 	err := s.importAccount(dir + AccountsFile)
-	if err!=nil {
+	if err != nil {
 		return err
 	}
 	err = s.importFavorite(dir + FavoritesFile)

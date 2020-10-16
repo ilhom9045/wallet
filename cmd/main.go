@@ -8,23 +8,48 @@ import (
 func main() {
 	svc := &wallet.Service{}
 	account, _ := svc.RegisterAccount("+992000000001")
-	svc.Deposit(account.ID, 100_00)
+	err := svc.Deposit(account.ID, 100_00)
+	if err != nil {
+		log.Println(err , "13")
+		return
+	}
 	payment, _ := svc.Pay(account.ID, 10_00, "auto")
 	favorite, _ := svc.FavoritePayment(payment.ID, "megafon")
-	svc.PayFromFavorite(favorite.ID)
+	_,err =svc.PayFromFavorite(favorite.ID)
+	if err != nil {
+		log.Println(err,20)
+		return
+	}
 	account, _ = svc.RegisterAccount("+992000000002")
-	svc.Deposit(account.ID, 100_00)
+	err = svc.Deposit(account.ID, 100_00)
+	if err != nil {
+		log.Println(err,26)
+	}
 	payment, _ = svc.Pay(account.ID, 10_00, "auto")
 	favorite, _ = svc.FavoritePayment(payment.ID, "megafon")
-	svc.PayFromFavorite(favorite.ID)
+	_,err = svc.PayFromFavorite(favorite.ID)
+	if err != nil {
+		log.Println(err,32)
+		return
+	}
 	dir, _ := svc.GetDir()
 	//os.MkdirAll(dir,0777)
-	svc.ExportToFile("data/export.txt")
-	svc.ImportFromFile("data/export.txt")
-	svc.Export(dir)
-	err := svc.Import(dir)
+	err = svc.ExportToFile("data/export.txt")
 	if err != nil {
-		log.Print(err)
+		log.Println(err,39)
+	}
+	err = svc.ImportFromFile("data/export.txt")
+	if err != nil {
+		log.Println(err,43)
+	}
+	err = svc.Export(dir)
+	if err != nil {
+		log.Println(err,47)
+	}
+	err = svc.Import(dir)
+	if err != nil {
+		log.Print(err,51)
+		return
 	}
 
 	//svc := &wallet.Service{}

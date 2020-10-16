@@ -41,13 +41,13 @@ var ErrFavoriteNotFound = errors.New("Favorite not found")
 var ErrFileNotFound = errors.New("File not found")
 
 //AccountsFile some text
-var AccountsFile = "accounts.dump"
+var AccountsFile = "/accounts.dump"
 
 //some text
-var PaymentsFile = "payments.dump"
+var PaymentsFile = "/payments.dump"
 
 //some text
-var FavoritesFile = "favorites.dump"
+var FavoritesFile = "/favorites.dump"
 
 //RegisterAccount ...
 func (s *Service) RegisterAccount(phone types.Phone) (*types.Account, error) {

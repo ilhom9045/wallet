@@ -19,7 +19,7 @@ func main() {
 	favorite, _ = svc.FavoritePayment(payment.ID, "megafon")
 	svc.PayFromFavorite(favorite.ID)
 	dir, _ := svc.GetDir()
-	dir += "/export/"
+	dir += "/export"
 	os.MkdirAll(dir,0777)
 	svc.ExportToFile("data/export.txt")
 	svc.ImportFromFile("data/export.txt")

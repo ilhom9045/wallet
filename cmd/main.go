@@ -21,6 +21,8 @@ func main() {
 	dir, _ := svc.GetDir()
 	dir += "/export/"
 	os.MkdirAll(dir,0777)
+	svc.ExportToFile("data/export.txt")
+	svc.ImportFromFile("data/export.txt")
 	svc.Export(dir)
 	err := svc.Import(dir)
 	if err != nil {

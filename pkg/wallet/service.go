@@ -441,7 +441,7 @@ func (s *Service) importAccount(path string) error {
 		newAccount.Phone = types.Phone(value[1])
 		newAccount.Balance = types.Money(Balance)
 		s.accounts = append(s.accounts, newAccount)
-		log.Print(newAccount)
+		log.Print(line)
 	}
 	return nil
 }

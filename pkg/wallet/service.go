@@ -513,7 +513,7 @@ func (s *Service) importFavorite(path string) error {
 func readLine(path string) (lines []string, err error) {
 
 	if _, err := os.Stat(path); os.IsNotExist(err) {
-		return nil,ErrFileNotFound
+		return nil,nil
 	}
 
 	file, err := os.Open(path)

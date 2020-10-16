@@ -35,9 +35,7 @@ var ErrAmountMustBePositive = errors.New("Amount mast be <0")
 
 //ErrNotEnoughBalance ...
 var ErrNotEnoughBalance = errors.New("")
-
 var ErrFavoriteNotFound = errors.New("Favorite not found")
-
 var ErrFileNotFound = errors.New("File not found")
 
 //AccountsFile some text
@@ -219,7 +217,6 @@ func (s *Service) GetDir() (string, error) {
 	}
 	return dir, nil
 }
-
 func (s *Service) ExportToFile(path string) error {
 	file, err := os.Create(path)
 	if err != nil {
@@ -246,7 +243,6 @@ func (s *Service) ExportToFile(path string) error {
 	}
 	return nil
 }
-
 func (s *Service) ImportFromFile(path string) error {
 	file, err := os.Open(path)
 
@@ -307,7 +303,6 @@ func (s *Service) ImportFromFile(path string) error {
 	}
 	return nil
 }
-
 func (s *Service) Export(dir string) error {
 	err := s.exportAccount(dir + AccountsFile)
 	if err != nil {
@@ -413,7 +408,6 @@ func (s *Service) exportPayment(path string) error {
 	}
 	return nil
 }
-
 func (s *Service) Import(dir string) error {
 	err := s.importAccount(dir + AccountsFile)
 	if err != nil {
@@ -429,9 +423,7 @@ func (s *Service) Import(dir string) error {
 	}
 	return nil
 }
-
 func (s *Service) importAccount(path string) error {
-	log.Println("Account")
 	lines, err := readLine(path)
 	if err != nil {
 		return err
@@ -457,7 +449,6 @@ func (s *Service) importAccount(path string) error {
 	return nil
 }
 func (s *Service) importPayment(path string) error {
-	log.Println("Payment")
 	lines, err := readLine(path)
 	if err != nil {
 		return err
@@ -489,7 +480,6 @@ func (s *Service) importPayment(path string) error {
 	return nil
 }
 func (s *Service) importFavorite(path string) error {
-	log.Println("FAvorite")
 	lines, err := readLine(path)
 	if err != nil {
 		return err

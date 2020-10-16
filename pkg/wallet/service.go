@@ -513,26 +513,27 @@ func (s *Service) importFavorite(path string) error {
 func readLine(path string) (lines []string, err error) {
 
 	if _, err := os.Stat(path); os.IsNotExist(err) {
-		return nil,nil
+		return nil, nil
 	}
 
 	file, err := os.Open(path)
 	if err != nil {
-		log.Print(err)
-		return nil, ErrFileNotFound
+		err = ErrFileNotFound
 	}
-	defer func() {
-		if cerr := file.Close(); cerr != nil {
-			log.Print(cerr)
+	if err != ErrFileNotFound {
+		defer func() {
+			if cerr := file.Close(); cerr != nil {
+				log.Print(cerr)
+			}
+		}()
+		reader := bufio.NewReader(file)
+		for {
+			line, _, err := reader.ReadLine()
+			if err != nil || len(line) == 0 {
+				break
+			}
+			lines = append(lines, string(line))
 		}
-	}()
-	reader := bufio.NewReader(file)
-	for {
-		line, _, err := reader.ReadLine()
-		if err != nil || len(line) == 0 {
-			break
-		}
-		lines = append(lines, string(line))
 	}
 	return lines, nil
 }

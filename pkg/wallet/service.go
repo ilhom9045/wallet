@@ -212,13 +212,6 @@ func (s *Service) PayFromFavorite(favoriteID string) (*types.Payment, error) {
 
 var ErrFileNotClose = errors.New("File not close")
 
-func CreateFileOrNot(path string) bool {
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		return false
-	}
-	return true
-}
-
 func (s *Service) GetDir() (string, error) {
 	dir, err := filepath.Abs(".")
 	if err != nil {
@@ -528,9 +521,7 @@ func (s *Service) importFavorite(path string) error {
 	return nil
 }
 func readLine(path string) (lines []string, err error) {
-	if !CreateFileOrNot(path) {
-		return nil, ErrFileNotFound
-	}
+
 	file, err := os.Open(path)
 	if err != nil {
 		log.Print(err)

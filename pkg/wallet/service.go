@@ -308,11 +308,11 @@ func (s *Service) Export(dir string) error {
 	if err != nil {
 		return err
 	}
-	err = s.exportFavorite(dir + FavoritesFile)
+	err = s.exportPayment(dir + PaymentsFile)
 	if err != nil {
 		return err
 	}
-	err = s.exportPayment(dir + PaymentsFile)
+	err = s.exportFavorite(dir + FavoritesFile)
 	if err != nil {
 		return err
 	}
@@ -413,11 +413,11 @@ func (s *Service) Import(dir string) error {
 	if err != nil {
 		return err
 	}
-	err = s.importFavorite(dir + FavoritesFile)
+	err = s.importPayment(dir + PaymentsFile)
 	if err != nil {
 		return err
 	}
-	err = s.importPayment(dir + PaymentsFile)
+	err = s.importFavorite(dir + FavoritesFile)
 	if err != nil {
 		return err
 	}

@@ -421,6 +421,7 @@ func (s *Service) Import(dir string) error {
 }
 
 func (s *Service) importAccount(path string) error {
+	log.Println("Account")
 	lines, err := readLine(path)
 	if err != nil {
 		return err
@@ -446,6 +447,7 @@ func (s *Service) importAccount(path string) error {
 	return nil
 }
 func (s *Service) importPayment(path string) error {
+	log.Println("Payment")
 	lines, err := readLine(path)
 	if err != nil {
 		return err
@@ -472,11 +474,12 @@ func (s *Service) importPayment(path string) error {
 		newPayment.Category = types.PaymentCategory(Category)
 		newPayment.Status = types.PaymentStatus(Status)
 		s.payments = append(s.payments, newPayment)
-		log.Print(newPayment)
+		log.Print(line)
 	}
 	return nil
 }
 func (s *Service) importFavorite(path string) error {
+	log.Println("FAvorite")
 	lines, err := readLine(path)
 	if err != nil {
 		return err
@@ -503,7 +506,7 @@ func (s *Service) importFavorite(path string) error {
 		newFavorite.Amount = types.Money(Amount)
 		newFavorite.Category = types.PaymentCategory(Category)
 		s.favorites = append(s.favorites, newFavorite)
-		log.Print(newFavorite)
+		log.Print(line)
 	}
 	return nil
 }

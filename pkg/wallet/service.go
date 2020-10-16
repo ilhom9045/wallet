@@ -360,7 +360,7 @@ func (s *Service) exportFavorite(path string) error {
 	defer func() {
 		err = file.Close()
 		if err != nil {
-			log.Println(err)
+
 		}
 	}()
 

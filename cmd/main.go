@@ -13,25 +13,13 @@ func main() {
 		log.Println(err , "13")
 		return
 	}
-	payment, _ := svc.Pay(account.ID, 10_00, "auto")
-	favorite, _ := svc.FavoritePayment(payment.ID, "megafon")
-	_,err =svc.PayFromFavorite(favorite.ID)
-	if err != nil {
-		log.Println(err,20)
-		return
-	}
+
 	account, _ = svc.RegisterAccount("+992000000002")
 	err = svc.Deposit(account.ID, 100_00)
 	if err != nil {
 		log.Println(err,26)
 	}
-	payment, _ = svc.Pay(account.ID, 10_00, "auto")
-	favorite, _ = svc.FavoritePayment(payment.ID, "megafon")
-	_,err = svc.PayFromFavorite(favorite.ID)
-	if err != nil {
-		log.Println(err,32)
-		return
-	}
+
 	dir, _ := svc.GetDir()
 	//os.MkdirAll(dir,0777)
 	err = svc.ExportToFile("data/export.txt")

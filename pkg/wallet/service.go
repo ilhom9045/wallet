@@ -338,7 +338,7 @@ func (s *Service) exportAccount(path string) error {
 	for _, account := range s.accounts {
 		data += strconv.Itoa(int(account.ID)) + ", "
 		data += string(account.Phone) + ", "
-		data += strconv.Itoa(int(account.Balance)) + "\n"
+		data += strconv.Itoa(int(account.Balance)) + "|"
 	}
 	_, err = file.Write([]byte(data))
 	if err != nil {
@@ -370,7 +370,7 @@ func (s *Service) exportFavorite(path string) error {
 		favoriteData += strconv.Itoa(int(favorite.AccountID)) + ", "
 		favoriteData += favorite.Name + ", "
 		favoriteData += strconv.Itoa(int(favorite.Amount)) + ", "
-		favoriteData += string(favorite.Category) + "\n"
+		favoriteData += string(favorite.Category) + "|"
 	}
 	_, err = file.WriteString(favoriteData)
 	if err != nil {
@@ -393,15 +393,13 @@ func (s *Service) exportPayment(path string) error {
 		}
 	}()
 	paymentData := ""
-
 	for _, payment := range s.payments {
 		paymentData += payment.ID + ", "
 		paymentData += strconv.Itoa(int(payment.AccountID)) + ", "
 		paymentData += strconv.Itoa(int(payment.Amount)) + ", "
 		paymentData += string(payment.Category) + ", "
-		paymentData += string(payment.Status) + "\n"
+		paymentData += string(payment.Status) + "|"
 	}
-
 	_, err = file.WriteString(paymentData)
 	if err != nil {
 		return err
@@ -511,11 +509,6 @@ func (s *Service) importFavorite(path string) error {
 	return nil
 }
 func readLine(path string) (lines []string, err error) {
-
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		return nil, nil
-	}
-
 	file, err := os.Open(path)
 	if err != nil {
 		err = ErrFileNotFound
@@ -527,13 +520,12 @@ func readLine(path string) (lines []string, err error) {
 			}
 		}()
 		reader := bufio.NewReader(file)
-		for {
-			line, _, err := reader.ReadLine()
-			if err != nil || len(line) == 0 {
-				break
-			}
-			lines = append(lines, string(line))
+		line,_ ,err := reader.ReadLine()
+		if err != nil {
+			return nil,err
 		}
+		lines = append(lines,strings.Split(string(line),"|")...)
+		lines = lines[:len(lines)-1]
 	}
 	return lines, nil
 }

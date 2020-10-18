@@ -2,6 +2,7 @@ package wallet
 
 import (
 	"errors"
+	"fmt"
 	"github.com/google/uuid"
 	"github.com/ilhom9045/wallet/pkg/types"
 	"io"
@@ -297,32 +298,32 @@ func (s *Service) ImportFromFile(path string) error {
 func (s *Service) Export(dir string) error {
 	lenAccounts := len(s.accounts)
 
-	if lenAccounts!=0 {
-		fileDir := dir+"/accounts.dump"
-		file, err :=os.Create(fileDir)
+	if lenAccounts != 0 {
+		fileDir := dir + "/accounts.dump"
+		file, err := os.Create(fileDir)
 		if err != nil {
 			log.Print(err)
 			return ErrFileNotFound
 		}
 
-		defer func () {
-			if cerr := file.Close(); cerr!=nil{
+		defer func() {
+			if cerr := file.Close(); cerr != nil {
 				log.Print(cerr)
 			}
 		}()
 		data := ""
 		for _, account := range s.accounts {
-			id := strconv.Itoa(int(account.ID))+";"
-			phone:=string(account.Phone)+";"
+			id := strconv.Itoa(int(account.ID)) + ";"
+			phone := string(account.Phone) + ";"
 			balance := strconv.Itoa(int(account.Balance))
 
-			data +=id
+			data += id
 			data += phone
-			data +=balance+"|"
+			data += balance + "|"
 		}
 
 		_, err = file.Write([]byte(data))
-		if err!=nil {
+		if err != nil {
 			log.Print(err)
 			return ErrFileNotFound
 		}
@@ -330,37 +331,37 @@ func (s *Service) Export(dir string) error {
 
 	lenPayments := len(s.payments)
 
-	if lenPayments!=0 {
-		fileDir := dir+"/payments.dump"
+	if lenPayments != 0 {
+		fileDir := dir + "/payments.dump"
 
-		file, err :=os.Create(fileDir)
+		file, err := os.Create(fileDir)
 		if err != nil {
 			log.Print(err)
 			return ErrFileNotFound
 		}
 
-		defer func () {
-			if cerr := file.Close(); cerr!=nil{
+		defer func() {
+			if cerr := file.Close(); cerr != nil {
 				log.Print(cerr)
 			}
 		}()
 		data := ""
 		for _, payment := range s.payments {
-			idPayment := string(payment.ID)+";"
-			idPaymnetAccountId := strconv.Itoa(int(payment.AccountID))+";"
-			amountPayment :=strconv.Itoa(int(payment.Amount))+";"
-			categoryPayment :=string(payment.Category)+";"
+			idPayment := string(payment.ID) + ";"
+			idPaymnetAccountId := strconv.Itoa(int(payment.AccountID)) + ";"
+			amountPayment := strconv.Itoa(int(payment.Amount)) + ";"
+			categoryPayment := string(payment.Category) + ";"
 			statusPayment := string(payment.Status)
 
-			data +=idPayment
+			data += idPayment
 			data += idPaymnetAccountId
-			data+=amountPayment
-			data+=categoryPayment
-			data +=statusPayment+"|"
+			data += amountPayment
+			data += categoryPayment
+			data += statusPayment + "|"
 		}
 
 		_, err = file.Write([]byte(data))
-		if err!=nil {
+		if err != nil {
 			log.Print(err)
 			return ErrFileNotFound
 		}
@@ -368,41 +369,42 @@ func (s *Service) Export(dir string) error {
 
 	lenFavorites := len(s.favorites)
 
-	if lenFavorites!=0 {
-		fileDir := dir+"/favorites.dump"
-		file, err :=os.Create(fileDir)
+	if lenFavorites != 0 {
+		fileDir := dir + "/favorites.dump"
+		file, err := os.Create(fileDir)
 		if err != nil {
 			log.Print(err)
 			return ErrFileNotFound
 		}
 
-		defer func () {
-			if cerr := file.Close(); cerr!=nil{
+		defer func() {
+			if cerr := file.Close(); cerr != nil {
 				log.Print(cerr)
 			}
 		}()
 		data := ""
 		for _, favorite := range s.favorites {
-			idFavorite := string(favorite.ID)+";"
-			idFavoriteAccountId := strconv.Itoa(int(favorite.AccountID))+";"
-			nameFavorite := string(favorite.Name)+";"
-			amountFavorite :=strconv.Itoa(int(favorite.Amount))+";"
-			categoryFavorite :=string(favorite.Category)
+			idFavorite := string(favorite.ID) + ";"
+			idFavoriteAccountId := strconv.Itoa(int(favorite.AccountID)) + ";"
+			nameFavorite := string(favorite.Name) + ";"
+			amountFavorite := strconv.Itoa(int(favorite.Amount)) + ";"
+			categoryFavorite := string(favorite.Category)
 
-			data +=idFavorite
-			data+=idFavoriteAccountId
+			data += idFavorite
+			data += idFavoriteAccountId
 			data += nameFavorite
-			data+=amountFavorite
-			data +=categoryFavorite+"|"
+			data += amountFavorite
+			data += categoryFavorite + "|"
 		}
 		_, err = file.Write([]byte(data))
-		if err!=nil {
+		if err != nil {
 			log.Print(err)
 			return ErrFileNotFound
 		}
 	}
 	return nil
 }
+
 // Import(dir string) error
 func (s *Service) Import(dir string) error {
 	dirAccount := dir + "/accounts.dump"
@@ -594,6 +596,73 @@ func (s *Service) Import(dir string) error {
 
 			s.favorites = append(s.favorites, newFavorite)
 			//log.Print(favorite)
+		}
+	}
+	return nil
+}
+
+func (s *Service) ExportAccountHistory(accountID int64) (newPayment []types.Payment, err error) {
+	for _, value := range s.payments {
+		if value.AccountID == accountID {
+			newPayment = append(newPayment, *value)
+		}
+	}
+	if newPayment == nil {
+		return nil, ErrAccountNotFound
+	}
+	return
+}
+func (s *Service) HistoryToFiles(payments []types.Payment, dir string, records int) error {
+	if len(payments) > 0 {
+		if len(payments) <= records {
+			file, _ := os.OpenFile(dir+"/payments.dump", os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0666)
+			defer func() {
+				if cerr := file.Close(); cerr != nil {
+					log.Print(cerr)
+				}
+			}()
+
+			var str string
+			for _, payment := range payments {
+				idPayment := payment.ID + ";"
+				idPaymnetAccountId := strconv.Itoa(int(payment.AccountID)) + ";"
+				amountPayment := strconv.Itoa(int(payment.Amount)) + ";"
+				categoryPayment := string(payment.Category) + ";"
+				statusPayment := string(payment.Status)
+
+				str += idPayment
+				str += idPaymnetAccountId
+				str += amountPayment
+				str += categoryPayment
+				str += statusPayment + "\n"
+			}
+			_, err := file.WriteString(str)
+			if err != nil {
+				log.Print(err)
+			}
+		} else {
+			var str string
+			k := 0
+			t := 1
+			var file *os.File
+			for _, payment := range payments {
+				if k == 0 {
+					file, _ = os.OpenFile(dir+"/payments"+fmt.Sprint(t)+".dump", os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0666)
+				}
+				k++
+				str = payment.ID + ";" + strconv.Itoa(int(payment.AccountID)) + ";" + strconv.Itoa(int(payment.Amount)) + ";" + string(payment.Category) + ";" + string(payment.Status) + "\n"
+				_, err := file.WriteString(str)
+				if err != nil {
+					log.Print(err)
+				}
+				if k == records {
+					str = ""
+					t++
+					k = 0
+					fmt.Println(t, " = t")
+					file.Close()
+				}
+			}
 		}
 	}
 	return nil

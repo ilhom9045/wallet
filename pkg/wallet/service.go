@@ -667,27 +667,26 @@ func (s *Service) SumPayments(goroutines int) types.Money {
 		}
 		return money
 	}
-	count := len(s.payments) / goroutines
-	max := 0
 	wg := sync.WaitGroup{}
 	mutex := sync.Mutex{}
+	max := 0
+	count := len(s.payments) / goroutines
 	for i := 0; i < goroutines; i++ {
-		wg.Add(1)
 		max += count
+		wg.Add(1)
 		go func(val int) {
 			defer wg.Done()
 			sum := types.Money(0)
-			for _, value := range s.payments[max-count : max] {
+			for index, value := range s.payments[val-count : val] {
 				sum += value.Amount
+				log.Println(index)
 			}
 			mutex.Lock()
 			money += sum
 			mutex.Unlock()
-		}(i)
+		}(max)
 	}
-	log.Println(max,count)
-	if max * count != len(s.payments) {
-		log.Println("max != goroutine")
+	if max*count != len(s.payments) {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
@@ -700,6 +699,7 @@ func (s *Service) SumPayments(goroutines int) types.Money {
 			mutex.Unlock()
 		}()
 	}
+	log.Println(money)
 	wg.Wait()
 	return money
 }

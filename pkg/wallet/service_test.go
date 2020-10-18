@@ -1,6 +1,8 @@
 package wallet
 
 import (
+	"github.com/ilhom9045/wallet/pkg/types"
+	"log"
 	"testing"
 )
 
@@ -136,5 +138,179 @@ func TestService_Favorite_success_user(t *testing.T) {
 	paymentFavorite, err := svc.PayFromFavorite(favorite.ID)
 	if err != nil {
 		t.Errorf("PayFromFavorite() Error() can't for an favorite(%v): %v", paymentFavorite, err)
+	}
+}
+func TestService_SumPayments(b *testing.T) {
+	svc := &Service{}
+
+	account, err := svc.RegisterAccount("+992000000001")
+	if err != nil {
+	}
+
+	err = svc.Deposit(account.ID, 100_00)
+	if err != nil {
+	}
+
+	svc.Pay(account.ID, 10_00, "auto")
+	svc.Pay(account.ID, 10_00, "auto")
+	svc.Pay(account.ID, 10_00, "auto")
+	svc.Pay(account.ID, 10_00, "auto")
+	svc.Pay(account.ID, 10_00, "auto")
+	svc.Pay(account.ID, 10_00, "auto")
+	svc.Pay(account.ID, 10_00, "auto")
+	want := types.Money(7000)
+
+	got := svc.SumPayments(5)
+	if want != got {
+		b.Errorf(" error, want => %v got => %v", want, got)
+	}
+
+}
+func TestService_ExportImport_success_user(t *testing.T) {
+	svc := &Service{}
+	account, _ := svc.RegisterAccount("+992000000001")
+	err := svc.Deposit(account.ID, 100_00)
+	if err != nil {
+		log.Println(err, "13")
+		return
+	}
+
+	account, _ = svc.RegisterAccount("+992000000002")
+	err = svc.Deposit(account.ID, 100_00)
+	if err != nil {
+		log.Println(err, 26)
+	}
+
+	dir, _ := svc.GetDir()
+	//os.MkdirAll(dir,0777)
+	err = svc.ExportToFile("data/export.txt")
+	if err != nil {
+		log.Println(err, 39)
+	}
+	err = svc.ImportFromFile("data/export.txt")
+	if err != nil {
+		log.Println(err, 43)
+	}
+	err = svc.Export(dir)
+	if err != nil {
+		log.Println(err, 47)
+	}
+	err = svc.Import(dir)
+	if err != nil {
+		log.Print(err, 51)
+		t.Error(err)
+	}
+}
+func TestService_Export_success_user(t *testing.T) {
+	svc := &Service{}
+	account, _ := svc.RegisterAccount("+992000000001")
+	err := svc.Deposit(account.ID, 100_00)
+	if err != nil {
+		log.Println(err, "13")
+		return
+	}
+
+	account, _ = svc.RegisterAccount("+992000000002")
+	err = svc.Deposit(account.ID, 100_00)
+	if err != nil {
+		log.Println(err, 26)
+	}
+
+	dir, _ := svc.GetDir()
+	//os.MkdirAll(dir,0777)
+	err = svc.ExportToFile("data/export.txt")
+	if err != nil {
+		log.Println(err, 39)
+	}
+	err = svc.ImportFromFile("data/export.txt")
+	if err != nil {
+		log.Println(err, 43)
+	}
+	err = svc.Export(dir)
+	if err != nil {
+		log.Println(err, 47)
+	}
+	err = svc.Import(dir)
+	if err != nil {
+		log.Print(err, 51)
+		return
+	}
+
+}
+func TestService_ExportHistory_success_user(t *testing.T) {
+	svc := &Service{}
+
+	account, err := svc.RegisterAccount("+992000000001")
+	if err != nil {
+	}
+
+	err = svc.Deposit(account.ID, 100_00)
+	if err != nil {
+	}
+
+	svc.Pay(account.ID, 10_00, "auto")
+	svc.Pay(account.ID, 10_00, "auto")
+	svc.Pay(account.ID, 10_00, "auto")
+	svc.Pay(account.ID, 10_00, "auto")
+	svc.Pay(account.ID, 10_00, "auto")
+	svc.Pay(account.ID, 10_00, "auto")
+	svc.Pay(account.ID, 10_00, "auto")
+	payment, err := svc.ExportAccountHistory(1)
+	if err != nil {
+		t.Error(err)
+	}
+	err = svc.HistoryToFiles(payment, "data", 4)
+	if err != nil {
+		t.Error(err)
+	}
+}
+func TestService_ExportToFile(t *testing.T) {
+	s := Service{}
+	err := s.ExportToFile("export.txt")
+	if err != nil {
+		t.Error(err)
+	}
+}
+func TestService_ImportFromFile(t *testing.T) {
+	s := Service{}
+	err := s.ImportFromFile("export.txt")
+	if err != nil {
+		t.Error(err)
+	}
+}
+func BenchmarkService_SumPayments(b *testing.B) {
+	var svc Service
+
+	account, err := svc.RegisterAccount("+992000000001")
+
+	if err != nil {
+		b.Errorf("method RegisterAccount returned not nil error, account => %v", account)
+	}
+
+	err = svc.Deposit(account.ID, 100_00)
+	if err != nil {
+		b.Errorf("method Deposit returned not nil error, error => %v", err)
+	}
+
+	_, err = svc.Pay(account.ID, 1, "Cafe")
+	_, err = svc.Pay(account.ID, 2, "Cafe")
+	_, err = svc.Pay(account.ID, 3, "Cafe")
+	_, err = svc.Pay(account.ID, 4, "Cafe")
+	_, err = svc.Pay(account.ID, 5, "Cafe")
+	_, err = svc.Pay(account.ID, 6, "Cafe")
+	_, err = svc.Pay(account.ID, 7, "Cafe")
+	_, err = svc.Pay(account.ID, 8, "Cafe")
+	_, err = svc.Pay(account.ID, 9, "Cafe")
+	_, err = svc.Pay(account.ID, 10, "Cafe")
+	_, err = svc.Pay(account.ID, 11, "Cafe")
+	if err != nil {
+		b.Errorf("method Pay returned not nil error, err => %v", err)
+	}
+
+	want := types.Money(66)
+
+	got := svc.SumPayments(2)
+	if want != got{
+		b.Errorf(" error, want => %v got => %v", want, got)
 	}
 }

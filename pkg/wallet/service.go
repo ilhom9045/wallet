@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 //Service ...
@@ -241,14 +242,11 @@ func (s *Service) ImportFromFile(path string) error {
 		log.Print(err)
 		return ErrFileNotFound
 	}
-	//defer closeFile(file)
 	defer func() {
 		if cerr := file.Close(); cerr != nil {
 			log.Print(cerr)
 		}
 	}()
-	//log.Printf("%#v", file)
-
 	content := make([]byte, 0)
 	buf := make([]byte, 4)
 	for {
@@ -268,9 +266,6 @@ func (s *Service) ImportFromFile(path string) error {
 
 	accounts := strings.Split(data, "|")
 	accounts = accounts[:len(accounts)-1]
-	// if accounts == nil {
-	// 	return ErrAccountNotFound
-	// }
 	for _, account := range accounts {
 
 		value := strings.Split(account, ";")
@@ -404,8 +399,6 @@ func (s *Service) Export(dir string) error {
 	}
 	return nil
 }
-
-// Import(dir string) error
 func (s *Service) Import(dir string) error {
 	dirAccount := dir + "/accounts.dump"
 	file, err := os.Open(dirAccount)
@@ -600,7 +593,6 @@ func (s *Service) Import(dir string) error {
 	}
 	return nil
 }
-
 func (s *Service) ExportAccountHistory(accountID int64) (newPayment []types.Payment, err error) {
 	for _, value := range s.payments {
 		if value.AccountID == accountID {
@@ -666,4 +658,48 @@ func (s *Service) HistoryToFiles(payments []types.Payment, dir string, records i
 		}
 	}
 	return nil
+}
+func (s *Service) SumPayments(goroutines int) types.Money {
+	money := types.Money(0)
+	if goroutines < 2 {
+		for _, value := range s.payments {
+			money += value.Amount
+		}
+		return money
+	}
+	count := len(s.payments) / goroutines
+	max := 0
+	wg := sync.WaitGroup{}
+	mutex := sync.Mutex{}
+	for i := 0; i < goroutines; i++ {
+		wg.Add(1)
+		max += count
+		go func(val int) {
+			defer wg.Done()
+			sum := types.Money(0)
+			for _, value := range s.payments[max-count : max] {
+				sum += value.Amount
+			}
+			mutex.Lock()
+			money += sum
+			mutex.Unlock()
+		}(i)
+	}
+	log.Println(max,count)
+	if max * count != len(s.payments) {
+		log.Println("max != goroutine")
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			sum := types.Money(0)
+			for _, value := range s.payments[max:] {
+				sum += value.Amount
+			}
+			mutex.Lock()
+			money += sum
+			mutex.Unlock()
+		}()
+	}
+	wg.Wait()
+	return money
 }

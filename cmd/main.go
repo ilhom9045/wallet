@@ -1,6 +1,9 @@
 package main
 
-import "github.com/ilhom9045/wallet/pkg/wallet"
+import (
+	"github.com/ilhom9045/wallet/pkg/wallet"
+	"log"
+)
 
 func main() {
 	//svc := &wallet.Service{}
@@ -47,18 +50,14 @@ func main() {
 	if err != nil {
 	}
 
-	payment, err := svc.Pay(account.ID, 10_00, "auto")
-	if err != nil {
-	}
+	svc.Pay(account.ID, 10_00, "auto")
+	svc.Pay(account.ID, 10_00, "auto")
+	svc.Pay(account.ID, 10_00, "auto")
+	svc.Pay(account.ID, 10_00, "auto")
+	svc.Pay(account.ID, 10_00, "auto")
+	svc.Pay(account.ID, 10_00, "auto")
+	svc.Pay(account.ID, 10_00, "auto")
+	i := svc.SumPayments(9)
+	log.Println(i)
 
-	favorite, err := svc.FavoritePayment(payment.ID, "megafon")
-	if err != nil {
-	}
-
-	_, err = svc.PayFromFavorite(favorite.ID)
-	if err != nil {
-	}
-	dir,_ := svc.GetDir()
-	svc.Export(dir)
-	svc.Import(dir)
 }

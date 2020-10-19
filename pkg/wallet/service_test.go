@@ -264,6 +264,33 @@ func TestService_ExportHistory_success_user(t *testing.T) {
 		t.Error(err)
 	}
 }
+func TestService_ExportHistory(t *testing.T) {
+	svc := &Service{}
+
+	account, err := svc.RegisterAccount("+992000000001")
+	if err != nil {
+	}
+
+	err = svc.Deposit(account.ID, 100_00)
+	if err != nil {
+	}
+
+	svc.Pay(account.ID, 10_00, "auto")
+	svc.Pay(account.ID, 10_00, "auto")
+	svc.Pay(account.ID, 10_00, "auto")
+	svc.Pay(account.ID, 10_00, "auto")
+	svc.Pay(account.ID, 10_00, "auto")
+	svc.Pay(account.ID, 10_00, "auto")
+	svc.Pay(account.ID, 10_00, "auto")
+	payment, err := svc.ExportAccountHistory(1)
+	if err != nil {
+		t.Error(err)
+	}
+	err = svc.HistoryToFiles(payment, "data", 20)
+	if err != nil {
+		t.Error(err)
+	}
+}
 func TestService_ExportToFile(t *testing.T) {
 	s := Service{}
 	err := s.ExportToFile("export.txt")
@@ -390,4 +417,39 @@ func BenchmarkService_FilterPaymentsByFn(b *testing.B) {
 		b.Error(err)
 	}
 	log.Println(a)
+}
+func BenchmarkService_FilterPaymentsByFn2(b *testing.B) {
+	svc := &Service{}
+	filter := func(payment types.Payment) bool {
+		for _, value := range svc.payments {
+			if payment.ID == value.ID {
+				return true
+			}
+		}
+		return false
+	}
+	account, err := svc.RegisterAccount("+992000000000")
+	account1, err := svc.RegisterAccount("+992000000001")
+	account2, err := svc.RegisterAccount("+992000000002")
+	account3, err := svc.RegisterAccount("+992000000003")
+	account4, err := svc.RegisterAccount("+992000000004")
+	acc, err := svc.RegisterAccount("+992000000005")
+	if err != nil {
+	}
+	svc.Deposit(acc.ID, 100)
+	err = svc.Deposit(account.ID, 100_00)
+	err = svc.Deposit(account1.ID, 100_00)
+	err = svc.Deposit(account2.ID, 100_00)
+	err = svc.Deposit(account3.ID, 100_00)
+	err = svc.Deposit(account4.ID, 100_00)
+	err = svc.Deposit(account2.ID, 100_00)
+	err = svc.Deposit(account3.ID, 100_00)
+	err = svc.Deposit(account4.ID, 100_00)
+	if err != nil {
+	}
+
+	_, err = svc.FilterPaymentsByFn(filter, 4)
+	if err == nil {
+		b.Error(err)
+	}
 }

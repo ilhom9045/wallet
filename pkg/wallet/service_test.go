@@ -348,3 +348,46 @@ func BenchmarkService_FilterPayments(b *testing.B) {
 	}
 	log.Println(len(a))
 }
+func BenchmarkService_FilterPaymentsByFn(b *testing.B) {
+	svc := &Service{}
+	filter := func(payment types.Payment) bool {
+		for _, value := range svc.payments {
+			if payment.ID == value.ID {
+				return true
+			}
+		}
+		return false
+	}
+	account, err := svc.RegisterAccount("+992000000000")
+	account1, err := svc.RegisterAccount("+992000000001")
+	account2, err := svc.RegisterAccount("+992000000002")
+	account3, err := svc.RegisterAccount("+992000000003")
+	account4, err := svc.RegisterAccount("+992000000004")
+	acc, err := svc.RegisterAccount("+992000000005")
+	if err != nil {
+	}
+	svc.Deposit(acc.ID, 100)
+	err = svc.Deposit(account.ID, 100_00)
+	if err != nil {
+	}
+
+	svc.Pay(account.ID, 10_00, "auto")
+	svc.Pay(account.ID, 10_00, "auto")
+	svc.Pay(account1.ID, 10_00, "auto")
+	svc.Pay(account2.ID, 10_00, "auto")
+	svc.Pay(account1.ID, 10_00, "auto")
+	svc.Pay(account1.ID, 10_00, "auto")
+	svc.Pay(account3.ID, 10_00, "auto")
+	svc.Pay(account4.ID, 10_00, "auto")
+	svc.Pay(account1.ID, 10_00, "auto")
+	svc.Pay(account3.ID, 10_00, "auto")
+	svc.Pay(account2.ID, 10_00, "auto")
+	svc.Pay(account4.ID, 10_00, "auto")
+	svc.Pay(account4.ID, 10_00, "auto")
+	svc.Pay(account4.ID, 10_00, "auto")
+	a, err := svc.FilterPaymentsByFn(filter, 4)
+	if err != nil {
+		b.Error(err)
+	}
+	log.Println(a)
+}

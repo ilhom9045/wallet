@@ -303,6 +303,7 @@ func BenchmarkService_SumPayments(b *testing.B) {
 	_, err = svc.Pay(account.ID, 10, "Cafe")
 	_, err = svc.Pay(account.ID, 11, "Cafe")
 	_, err = svc.Pay(account.ID, 12, "Cafe")
+	_, err = svc.Pay(account.ID, 13, "Cafe")
 	if err != nil {
 	}
 	for i := 0; i < b.N; i++ {
@@ -321,7 +322,7 @@ func BenchmarkService_FilterPayments(b *testing.B) {
 	acc, err := svc.RegisterAccount("+992000000005")
 	if err != nil {
 	}
-
+	svc.Deposit(acc.ID, 100)
 	err = svc.Deposit(account.ID, 100_00)
 	if err != nil {
 	}
@@ -334,7 +335,6 @@ func BenchmarkService_FilterPayments(b *testing.B) {
 	svc.Pay(account1.ID, 10_00, "auto")
 	svc.Pay(account3.ID, 10_00, "auto")
 	svc.Pay(account4.ID, 10_00, "auto")
-	svc.Pay(acc.ID, 10_00, "auto")
 	svc.Pay(account1.ID, 10_00, "auto")
 	svc.Pay(account3.ID, 10_00, "auto")
 	svc.Pay(account2.ID, 10_00, "auto")
@@ -342,8 +342,9 @@ func BenchmarkService_FilterPayments(b *testing.B) {
 	svc.Pay(account4.ID, 10_00, "auto")
 	svc.Pay(account4.ID, 10_00, "auto")
 
-	_, err = svc.FilterPayments(1, 5)
+	a, err := svc.FilterPayments(account.ID, 5)
 	if err != nil {
 		b.Error(err)
 	}
+	log.Println(len(a))
 }

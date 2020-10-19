@@ -747,6 +747,9 @@ func (s Service) FilterPayments(accountID int64, goroutines int) (newPayment []t
 				newPayment = append(newPayment, *value)
 			}
 		}
+		if newPayment == nil {
+			return nil, ErrAccountNotFound
+		}
 		return
 	}
 	wg := sync.WaitGroup{}
@@ -774,7 +777,9 @@ func (s Service) FilterPayments(accountID int64, goroutines int) (newPayment []t
 		defer wg.Done()
 		sum := []types.Payment{}
 		for _, value := range s.payments[max:] {
-			sum = append(sum, *value)
+			if value.AccountID == accountID {
+				sum = append(sum, *value)
+			}
 		}
 		mutex.Lock()
 		newPayment = append(newPayment, sum...)

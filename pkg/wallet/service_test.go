@@ -310,3 +310,40 @@ func BenchmarkService_SumPayments(b *testing.B) {
 	}
 
 }
+func BenchmarkService_FilterPayments(b *testing.B) {
+	svc := &Service{}
+
+	account, err := svc.RegisterAccount("+992000000000")
+	account1, err := svc.RegisterAccount("+992000000001")
+	account2, err := svc.RegisterAccount("+992000000002")
+	account3, err := svc.RegisterAccount("+992000000003")
+	account4, err := svc.RegisterAccount("+992000000004")
+	acc, err := svc.RegisterAccount("+992000000005")
+	if err != nil {
+	}
+
+	err = svc.Deposit(account.ID, 100_00)
+	if err != nil {
+	}
+
+	svc.Pay(account.ID, 10_00, "auto")
+	svc.Pay(account.ID, 10_00, "auto")
+	svc.Pay(account1.ID, 10_00, "auto")
+	svc.Pay(account2.ID, 10_00, "auto")
+	svc.Pay(account1.ID, 10_00, "auto")
+	svc.Pay(account1.ID, 10_00, "auto")
+	svc.Pay(account3.ID, 10_00, "auto")
+	svc.Pay(account4.ID, 10_00, "auto")
+	svc.Pay(acc.ID, 10_00, "auto")
+	svc.Pay(account1.ID, 10_00, "auto")
+	svc.Pay(account3.ID, 10_00, "auto")
+	svc.Pay(account2.ID, 10_00, "auto")
+	svc.Pay(account4.ID, 10_00, "auto")
+	svc.Pay(account4.ID, 10_00, "auto")
+	svc.Pay(account4.ID, 10_00, "auto")
+
+	_, err = svc.FilterPayments(1, 5)
+	if err != nil {
+		b.Error(err)
+	}
+}

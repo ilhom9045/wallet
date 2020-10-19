@@ -86,7 +86,7 @@ func main() {
 	if err != nil {
 	}
 
-	want := types.Money(66)
+	want := types.Money(78)
 
 	got := svc.SumPayments(2)
 	log.Println(got)

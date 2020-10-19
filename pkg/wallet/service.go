@@ -677,29 +677,65 @@ func (s *Service) SumPayments(goroutines int) types.Money {
 		go func(val int) {
 			defer wg.Done()
 			sum := types.Money(0)
-			for index, value := range s.payments[val-count : val] {
+			for _, value := range s.payments[val-count : val] {
 				sum += value.Amount
-				log.Println(index)
 			}
 			mutex.Lock()
 			money += sum
 			mutex.Unlock()
 		}(max)
 	}
-	if max*count != len(s.payments) {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			sum := types.Money(0)
-			for _, value := range s.payments[max:] {
-				sum += value.Amount
-			}
-			mutex.Lock()
-			money += sum
-			mutex.Unlock()
-		}()
-	}
-	log.Println(money)
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		sum := types.Money(0)
+		for _, value := range s.payments[max:] {
+			sum += value.Amount
+		}
+		mutex.Lock()
+		money += sum
+		mutex.Unlock()
+	}()
 	wg.Wait()
 	return money
+	//wg := sync.WaitGroup{}
+	//mu := sync.Mutex{}
+	//sum := int64(0)
+	//kol := 0
+	//i := 0
+	//if goroutines == 0 {
+	//	kol = len(s.payments)
+	//} else {
+	//	kol = int(len(s.payments) / goroutines)
+	//}
+	//for i = 0; i < goroutines-1; i++ {
+	//	wg.Add(1)
+	//	go func(index int) {
+	//		defer wg.Done()
+	//		val := int64(0)
+	//		payments := s.payments[index*kol : (index+1)*kol]
+	//		for _, payment := range payments {
+	//			val += int64(payment.Amount)
+	//		}
+	//		mu.Lock()
+	//		sum += val
+	//		mu.Unlock()
+	//
+	//	}(i)
+	//}
+	//wg.Add(1)
+	//go func() {
+	//	defer wg.Done()
+	//	val := int64(0)
+	//	payments := s.payments[i*kol:]
+	//	for _, payment := range payments {
+	//		val += int64(payment.Amount)
+	//	}
+	//	mu.Lock()
+	//	sum += val
+	//	mu.Unlock()
+	//
+	//}()
+	//wg.Wait()
+	//return types.Money(sum)
 }

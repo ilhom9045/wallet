@@ -279,17 +279,16 @@ func TestService_ImportFromFile(t *testing.T) {
 	}
 }
 func BenchmarkService_SumPayments(b *testing.B) {
-	var svc Service
+
+	svc := Service{}
 
 	account, err := svc.RegisterAccount("+992000000001")
 
 	if err != nil {
-		b.Errorf("method RegisterAccount returned not nil error, account => %v", account)
 	}
 
 	err = svc.Deposit(account.ID, 100_00)
 	if err != nil {
-		b.Errorf("method Deposit returned not nil error, error => %v", err)
 	}
 
 	_, err = svc.Pay(account.ID, 1, "Cafe")
@@ -303,14 +302,11 @@ func BenchmarkService_SumPayments(b *testing.B) {
 	_, err = svc.Pay(account.ID, 9, "Cafe")
 	_, err = svc.Pay(account.ID, 10, "Cafe")
 	_, err = svc.Pay(account.ID, 11, "Cafe")
+	_, err = svc.Pay(account.ID, 12, "Cafe")
 	if err != nil {
-		b.Errorf("method Pay returned not nil error, err => %v", err)
+	}
+	for i := 0; i < b.N; i++ {
+		svc.SumPayments(5)
 	}
 
-	want := types.Money(66)
-
-	got := svc.SumPayments(2)
-	if want != got{
-		b.Errorf(" error, want => %v got => %v", want, got)
-	}
 }

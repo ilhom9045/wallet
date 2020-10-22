@@ -201,42 +201,6 @@ func TestService_ExportImport_success_user(t *testing.T) {
 		t.Error(err)
 	}
 }
-func TestService_ExportImport_success_user_fail(t *testing.T) {
-	svc := &Service{}
-	account, _ := svc.RegisterAccount("+992000000001")
-	err := svc.Deposit(account.ID, 100_00)
-	if err != nil {
-		log.Println(err, "13")
-		return
-	}
-
-	account, _ = svc.RegisterAccount("+992000000002")
-	err = svc.Deposit(account.ID, 100_00)
-	if err != nil {
-		log.Println(err, 26)
-	}
-
-	dir, _ := svc.GetDir()
-	//os.MkdirAll(dir,0777)
-	err = svc.ExportToFile("data/export.txt")
-	if err != nil {
-		log.Println(err, 39)
-	}
-	err = svc.ImportFromFile("data/export.txt")
-	if err != nil {
-		log.Println(err, 43)
-	}
-	err = svc.Export(dir)
-	if err != nil {
-		log.Println(err, 47)
-	}
-	dir += "/ddd"
-	err = svc.Import(dir)
-	if err == nil {
-		log.Print(err, 51)
-		t.Error(err)
-	}
-}
 func TestService_Export_success_user(t *testing.T) {
 	svc := &Service{}
 	account, _ := svc.RegisterAccount("+992000000001")

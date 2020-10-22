@@ -702,46 +702,7 @@ func (s *Service) SumPayments(goroutines int) types.Money {
 	}()
 	wg.Wait()
 	return money
-	//wg := sync.WaitGroup{}
-	//mu := sync.Mutex{}
-	//sum := int64(0)
-	//kol := 0
-	//i := 0
-	//if goroutines == 0 {
-	//	kol = len(s.payments)
-	//} else {
-	//	kol = int(len(s.payments) / goroutines)
-	//}
-	//for i = 0; i < goroutines-1; i++ {
-	//	wg.Add(1)
-	//	go func(index int) {
-	//		defer wg.Done()
-	//		val := int64(0)
-	//		payments := s.payments[index*kol : (index+1)*kol]
-	//		for _, payment := range payments {
-	//			val += int64(payment.Amount)
-	//		}
-	//		mu.Lock()
-	//		sum += val
-	//		mu.Unlock()
-	//
-	//	}(i)
-	//}
-	//wg.Add(1)
-	//go func() {
-	//	defer wg.Done()
-	//	val := int64(0)
-	//	payments := s.payments[i*kol:]
-	//	for _, payment := range payments {
-	//		val += int64(payment.Amount)
-	//	}
-	//	mu.Lock()
-	//	sum += val
-	//	mu.Unlock()
-	//
-	//}()
-	//wg.Wait()
-	//return types.Money(sum)
+
 }
 
 func (s Service) FilterPayments(accountID int64, goroutines int) (newPayment []types.Payment, err error) {
@@ -907,8 +868,8 @@ func (s Service) SumPaymentsWithProgress() <-chan Progress {
 	if s.payments == nil {
 		return chanal
 	}
-	i := 1
-	for ; i < part; i++ {
+	i := 0
+	for i = 0; i < part; i++ {
 		wg.Add(1)
 		go func(ch chan Progress, j int) {
 			defer wg.Done()

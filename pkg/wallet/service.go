@@ -898,6 +898,11 @@ func merge(chanal []chan Progress) {
 }
 
 func (s Service) SumPaymentsWithProgress() <-chan Progress {
+
+	if s.payments == nil {
+		return nil
+	}
+
 	part := 10
 	size := len(s.payments) / part
 	wg := &sync.WaitGroup{}

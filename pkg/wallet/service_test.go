@@ -201,6 +201,42 @@ func TestService_ExportImport_success_user(t *testing.T) {
 		t.Error(err)
 	}
 }
+func TestService_ExportImport_success_user_fail(t *testing.T) {
+	svc := &Service{}
+	account, _ := svc.RegisterAccount("+992000000001")
+	err := svc.Deposit(account.ID, 100_00)
+	if err != nil {
+		log.Println(err, "13")
+		return
+	}
+
+	account, _ = svc.RegisterAccount("+992000000002")
+	err = svc.Deposit(account.ID, 100_00)
+	if err != nil {
+		log.Println(err, 26)
+	}
+
+	dir, _ := svc.GetDir()
+	//os.MkdirAll(dir,0777)
+	err = svc.ExportToFile("data/export.txt")
+	if err != nil {
+		log.Println(err, 39)
+	}
+	err = svc.ImportFromFile("data/export.txt")
+	if err != nil {
+		log.Println(err, 43)
+	}
+	err = svc.Export(dir)
+	if err != nil {
+		log.Println(err, 47)
+	}
+	dir += "/ddd"
+	err = svc.Import(dir)
+	if err == nil {
+		log.Print(err, 51)
+		t.Error(err)
+	}
+}
 func TestService_Export_success_user(t *testing.T) {
 	svc := &Service{}
 	account, _ := svc.RegisterAccount("+992000000001")
@@ -418,7 +454,92 @@ func BenchmarkService_FilterPaymentsByFn(b *testing.B) {
 	}
 	log.Println(a)
 }
-func BenchmarkService_FilterPaymentsByFn2(b *testing.B) {
+
+//func BenchmarkService_FilterPaymentsByFn2(b *testing.B) {
+//	svc := &Service{}
+//	filter := func(payment types.Payment) bool {
+//		for _, value := range svc.payments {
+//			if payment.ID == value.ID {
+//				return true
+//			}
+//		}
+//		return false
+//	}
+//	account, err := svc.RegisterAccount("+992000000000")
+//	account1, err := svc.RegisterAccount("+992000000001")
+//	account2, err := svc.RegisterAccount("+992000000002")
+//	account3, err := svc.RegisterAccount("+992000000003")
+//	account4, err := svc.RegisterAccount("+992000000004")
+//	acc, err := svc.RegisterAccount("+992000000005")
+//	if err != nil {
+//	}
+//	svc.Deposit(acc.ID, 100)
+//	err = svc.Deposit(account.ID, 100_00)
+//	err = svc.Deposit(account1.ID, 100_00)
+//	err = svc.Deposit(account2.ID, 100_00)
+//	err = svc.Deposit(account3.ID, 100_00)
+//	err = svc.Deposit(account4.ID, 100_00)
+//	err = svc.Deposit(account2.ID, 100_00)
+//	err = svc.Deposit(account3.ID, 100_00)
+//	err = svc.Deposit(account4.ID, 100_00)
+//	if err != nil {
+//	}
+//
+//	_, err = svc.FilterPaymentsByFn(filter, 4)
+//	if err == nil {
+//		b.Error(err)
+//	}
+//}
+//func BenchmarkService_SumPaymentsWithProgress(b *testing.B) {
+//	s := Service{}
+//	for i := 0; i < b.N; i++ {
+//		s.SumPaymentsWithProgress()
+//	}
+//}
+//func BenchmarkService_SumPaymentsWithProgress1(b *testing.B) {
+//	s := Service{}
+//	for i := 0; i < b.N; i++ {
+//		s.SumPaymentsWithProgress2()
+//	}
+//}
+func TestService_FilterPayments(t *testing.T) {
+	svc := &Service{}
+
+	account, err := svc.RegisterAccount("+992000000000")
+	account1, err := svc.RegisterAccount("+992000000001")
+	account2, err := svc.RegisterAccount("+992000000002")
+	account3, err := svc.RegisterAccount("+992000000003")
+	account4, err := svc.RegisterAccount("+992000000004")
+	acc, err := svc.RegisterAccount("+992000000005")
+	if err != nil {
+	}
+	svc.Deposit(acc.ID, 100)
+	err = svc.Deposit(account.ID, 100_00)
+	if err != nil {
+	}
+
+	svc.Pay(account.ID, 10_00, "auto")
+	svc.Pay(account.ID, 10_00, "auto")
+	svc.Pay(account1.ID, 10_00, "auto")
+	svc.Pay(account2.ID, 10_00, "auto")
+	svc.Pay(account1.ID, 10_00, "auto")
+	svc.Pay(account1.ID, 10_00, "auto")
+	svc.Pay(account3.ID, 10_00, "auto")
+	svc.Pay(account4.ID, 10_00, "auto")
+	svc.Pay(account1.ID, 10_00, "auto")
+	svc.Pay(account3.ID, 10_00, "auto")
+	svc.Pay(account2.ID, 10_00, "auto")
+	svc.Pay(account4.ID, 10_00, "auto")
+	svc.Pay(account4.ID, 10_00, "auto")
+	svc.Pay(account4.ID, 10_00, "auto")
+
+	a, err := svc.FilterPayments(account.ID, 5)
+	if err != nil {
+		t.Error(err)
+	}
+	log.Println(len(a))
+}
+func TestService_FilterPaymentsByFn(t *testing.T) {
 	svc := &Service{}
 	filter := func(payment types.Payment) bool {
 		for _, value := range svc.payments {
@@ -438,18 +559,26 @@ func BenchmarkService_FilterPaymentsByFn2(b *testing.B) {
 	}
 	svc.Deposit(acc.ID, 100)
 	err = svc.Deposit(account.ID, 100_00)
-	err = svc.Deposit(account1.ID, 100_00)
-	err = svc.Deposit(account2.ID, 100_00)
-	err = svc.Deposit(account3.ID, 100_00)
-	err = svc.Deposit(account4.ID, 100_00)
-	err = svc.Deposit(account2.ID, 100_00)
-	err = svc.Deposit(account3.ID, 100_00)
-	err = svc.Deposit(account4.ID, 100_00)
 	if err != nil {
 	}
 
-	_, err = svc.FilterPaymentsByFn(filter, 4)
-	if err == nil {
-		b.Error(err)
+	svc.Pay(account.ID, 10_00, "auto")
+	svc.Pay(account.ID, 10_00, "auto")
+	svc.Pay(account1.ID, 10_00, "auto")
+	svc.Pay(account2.ID, 10_00, "auto")
+	svc.Pay(account1.ID, 10_00, "auto")
+	svc.Pay(account1.ID, 10_00, "auto")
+	svc.Pay(account3.ID, 10_00, "auto")
+	svc.Pay(account4.ID, 10_00, "auto")
+	svc.Pay(account1.ID, 10_00, "auto")
+	svc.Pay(account3.ID, 10_00, "auto")
+	svc.Pay(account2.ID, 10_00, "auto")
+	svc.Pay(account4.ID, 10_00, "auto")
+	svc.Pay(account4.ID, 10_00, "auto")
+	svc.Pay(account4.ID, 10_00, "auto")
+	a, err := svc.FilterPaymentsByFn(filter, 4)
+	if err != nil {
+		t.Error(err)
 	}
+	log.Println(a)
 }

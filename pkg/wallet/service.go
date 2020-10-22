@@ -21,6 +21,10 @@ type Service struct {
 	payments      []*types.Payment
 	favorites     []*types.Favorite
 }
+type Progress struct {
+	Part   int
+	Result types.Money
+}
 
 //ErrAccountNotFound ...
 var ErrAccountNotFound = errors.New("Account ID not found")
@@ -842,4 +846,75 @@ func (s Service) FilterPaymentsByFn(filter func(payment types.Payment) bool, gor
 		return nil, ErrAccountNotFound
 	}
 	return
+}
+
+func (s Service) SumPaymentsWithProgress1() <-chan Progress {
+	data := make([]types.Payment, 1_000_000)
+	for i := range data {
+		data[i] = types.Payment{
+			ID: "", AccountID: int64(i), Amount: types.Money(i), Category: "auto", Status: "ok",
+		}
+	}
+	part := 10
+	size := len(data) / part
+	ch := make([]chan Progress, part)
+	for i := 0; i < part; i++ {
+		a := i
+		c1 := make(chan Progress)
+		ch[i] = c1
+		go func(c chan<- Progress, d []types.Payment) {
+			defer close(c)
+			sum := Progress{}
+			for _, j := range d {
+				sum.Part = a
+				sum.Result += j.Amount
+			}
+			c <- sum
+		}(c1, data[i*size:(i+1)*size])
+	}
+	merge(ch)
+	return nil
+}
+func merge(chanal []chan Progress) {
+	wg := &sync.WaitGroup{}
+	wg.Add(len(chanal))
+	merge := make(chan Progress)
+	for _, i := range chanal {
+		go func(ch chan Progress) {
+			defer wg.Done()
+			for i := range ch {
+				merge <- i
+			}
+		}(i)
+	}
+	go func() {
+		defer close(merge)
+		wg.Wait()
+	}()
+	total := types.Money(0)
+	for i := range merge {
+		total += i.Result
+	}
+}
+
+func (s Service) SumPaymentsWithProgress() <-chan Progress {
+	part := 10
+	size := 100_000
+	wg := &sync.WaitGroup{}
+	chanal := make(chan Progress, part)
+	for i := 0; i < part; i++ {
+		wg.Add(1)
+		go func(ch chan<- Progress, j int) {
+			defer wg.Done()
+			sum := Progress{}
+			for _, v := range s.payments[j*size : (j+1)*size] {
+				sum.Result += v.Amount
+			}
+			ch <- sum
+		}(chanal, i)
+	}
+
+	defer close(chanal)
+	wg.Wait()
+	return chanal
 }

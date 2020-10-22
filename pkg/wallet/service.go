@@ -899,12 +899,12 @@ func merge(chanal []chan Progress) {
 
 func (s Service) SumPaymentsWithProgress() <-chan Progress {
 	part := 10
-	size := 100_000
+	size := len(s.payments) / part
 	wg := &sync.WaitGroup{}
 	chanal := make(chan Progress, part)
 	for i := 0; i < part; i++ {
 		wg.Add(1)
-		go func(ch chan<- Progress, j int) {
+		go func(ch chan Progress, j int) {
 			defer wg.Done()
 			sum := Progress{}
 			for _, v := range s.payments[j*size : (j+1)*size] {

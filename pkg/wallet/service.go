@@ -923,7 +923,7 @@ func (s Service) SumPaymentsWithProgress() <-chan Progress {
 	go func(ch chan Progress, j int) {
 		defer wg.Done()
 		sum := Progress{}
-		for _, v := range s.payments[j*size : (j+1)*size] {
+		for _, v := range s.payments[j*size:] {
 			sum.Result += v.Amount
 		}
 		ch <- sum

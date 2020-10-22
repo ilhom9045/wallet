@@ -908,7 +908,7 @@ func (s Service) SumPaymentsWithProgress() <-chan Progress {
 		return chanal
 	}
 	i := 0
-	for i = 0; i < part; i++ {
+	for i = 1; i < part; i++ {
 		wg.Add(1)
 		go func(ch chan Progress, j int) {
 			defer wg.Done()

@@ -907,7 +907,7 @@ func (s Service) SumPaymentsWithProgress() chan Progress {
 		return nil
 	}
 	i := 0
-	for i = 0; i < part-1; i++ {
+	for i = 0; i < part; i++ {
 		wg.Add(1)
 		go func(val int) {
 			defer wg.Done()
@@ -918,15 +918,15 @@ func (s Service) SumPaymentsWithProgress() chan Progress {
 			chanal <- sum
 		}(i)
 	}
-	wg.Add(1)
-	go func(val int) {
-		defer wg.Done()
-		sum := Progress{}
-		for _, v := range s.payments[val*size:] {
-			sum.Result += v.Amount
-		}
-		chanal <- sum
-	}(i)
+	//wg.Add(1)
+	//go func(val int) {
+	//	defer wg.Done()
+	//	sum := Progress{}
+	//	for _, v := range s.payments[val*size:] {
+	//		sum.Result += v.Amount
+	//	}
+	//	chanal <- sum
+	//}(i)
 
 	defer close(chanal)
 	wg.Wait()

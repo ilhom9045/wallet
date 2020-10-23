@@ -904,7 +904,7 @@ func (s Service) SumPaymentsWithProgress() chan Progress {
 	wg := &sync.WaitGroup{}
 	chanal := make(chan Progress, part)
 	if s.payments == nil {
-		return chanal
+		return nil
 	}
 	i := 0
 	for i = 0; i < part-1; i++ {

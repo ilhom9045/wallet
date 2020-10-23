@@ -897,38 +897,38 @@ func merge(chanal []chan Progress) {
 	}
 }
 
-func (s Service) SumPaymentsWithProgress() <-chan Progress {
+func (s Service) SumPaymentsWithProgress() chan Progress {
 
 	part := 10
 	size := len(s.payments) / part
 	wg := &sync.WaitGroup{}
 	chanal := make(chan Progress, part)
-	defer close(chanal)
 	if s.payments == nil {
 		return chanal
 	}
 	i := 0
-	for i = 1; i < part; i++ {
+	for i = 0; i < part-1; i++ {
 		wg.Add(1)
-		go func(ch chan Progress, j int) {
+		go func(val int) {
 			defer wg.Done()
 			sum := Progress{}
-			for _, v := range s.payments[j*size : (j+1)*size] {
+			for _, v := range s.payments[val*size : (val+1)*size] {
 				sum.Result += v.Amount
 			}
-			ch <- sum
-		}(chanal, i)
+			chanal <- sum
+		}(i)
 	}
 	wg.Add(1)
-	go func(ch chan Progress, j int) {
+	go func(val int) {
 		defer wg.Done()
 		sum := Progress{}
-		for _, v := range s.payments[j*size:] {
+		for _, v := range s.payments[val*size:] {
 			sum.Result += v.Amount
 		}
-		ch <- sum
-	}(chanal, i)
+		chanal <- sum
+	}(i)
 
+	defer close(chanal)
 	wg.Wait()
 	return chanal
 }

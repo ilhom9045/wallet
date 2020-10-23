@@ -454,12 +454,13 @@ func BenchmarkService_FilterPaymentsByFn(b *testing.B) {
 //		b.Error(err)
 //	}
 //}
-//func BenchmarkService_SumPaymentsWithProgress(b *testing.B) {
-//	s := Service{}
-//	for i := 0; i < b.N; i++ {
-//		s.SumPaymentsWithProgress()
-//	}
-//}
+func BenchmarkService_SumPaymentsWithProgress(b *testing.B) {
+	s := Service{}
+	for i := 0; i < b.N; i++ {
+		s.SumPaymentsWithProgress()
+	}
+}
+
 //func BenchmarkService_SumPaymentsWithProgress1(b *testing.B) {
 //	s := Service{}
 //	for i := 0; i < b.N; i++ {

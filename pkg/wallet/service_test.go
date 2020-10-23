@@ -456,6 +456,9 @@ func BenchmarkService_FilterPaymentsByFn(b *testing.B) {
 //}
 func BenchmarkService_SumPaymentsWithProgress(b *testing.B) {
 	s := Service{}
+	for i := 0; i < 1_000_001; i++ {
+		s.Pay(1, types.Money(i), "auto")
+	}
 	for i := 0; i < b.N; i++ {
 		s.SumPaymentsWithProgress()
 	}

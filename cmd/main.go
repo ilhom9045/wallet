@@ -20,6 +20,6 @@ func main() {
 		"data/import.txt",
 		"data/export.txt",
 	}
-	log.Println(<-search.Any(ctx, "2;", files))
+	log.Println(<-search.All(ctx, "2;", files))
 	cancel()
 }
